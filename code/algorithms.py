@@ -153,9 +153,14 @@ class Algorithm:
         for i in range(1, len(seeds) + 1):
             # chose first i seeds
             subsets.append(seeds[:i])
-
         for i in range(len(subsets)):
             result = prob.estimate(self.G, self.p, subsets[i], self.ic_trials)
+            if i == 0:
+                zeros = 0
+                for res in result:
+                    if res == 0:
+                        zeros=zeros+1
+                print(zeros, flush=True)
             self.evaluations.append(np.min(result))
 
         # find and return the minimum probability
@@ -265,7 +270,8 @@ class Myopic(Algorithm):
     The initial seed is the node with the highest degree.
     '''
 
-    def __init__(self, G, p=0.5, k=100, seeds=None, ic_trials=1000, use_cache=False, threads=0):
+    def __init__(self, G, p=0.5, k=100, seeds=None, ic_trials=10000, use_cache=False, threads=0):
+        print("IC_trials:", ic_trials, flush=True)
         self.algo_name = 'myopic'
         self.cache_filename = "./cache/algo_cache/{}/{}_{}.txt".format(self.algo_name, G.name, p)
         super(Myopic, self).__init__(G, p, k, seeds, ic_trials, use_cache, threads)
@@ -340,7 +346,9 @@ class Gonzalez(Algorithm):
             # compute all pairs shortest paths
 
             time_start = time.time()
+            print("Before apsp", flush=True)
             apsp = dict(nx.all_pairs_shortest_path_length(self.G))
+            print("After apsp", flush=True)
             self.precompute_time += time.time() - time_start
             
             for _ in range(self.k):
@@ -714,7 +722,6 @@ class NaiveBFSMyopic(Algorithm):
 
             while cur_layer: # this runs until there is nothing left to check in the graph
                 for node in cur_layer:
-
                     # get neighbors of the node
                     neighbors = self.G.neighbors(node)
 
@@ -900,22 +907,24 @@ class DegreeLowestCentralityChooseNeighbor(Algorithm):
             # ...
 
             # get highest degree in the graph
+            print("began algorithm", flush=True)
             max_degree = np.max(np.array(self.G.degree())[:, 1])
-
+            print("max degree computed", flush=True)
             time_start = time.time()
             centrality = nx.harmonic_centrality(self.G)
+            print("centrality computed", flush=True)
             self.precompute_time += time.time() - time_start
 
             for k in range(1, max_degree+1):
                 # pick all nodes in the network with degree k
                 degree_k = [node for node in self.G.nodes() if self.G.degree(node) == k]
-
+                print("degree_k picked", flush=True)
                 # compute centrality for each node in degree_k
                 centrality_k = [centrality[node] for node in degree_k]
-
+                print("centrality_k computed", flush=True)
                 # make an np array with two columns: degree_k and closeness_k
                 temp = np.array([degree_k, centrality_k]).T
-
+                
                 # sort by second column in ascending order
                 # lowest closeness is better
                 temp = temp[temp[:, 1].argsort()]
@@ -924,9 +933,10 @@ class DegreeLowestCentralityChooseNeighbor(Algorithm):
                 degree_k = temp[:, 0].astype(int)
 
                 choices = degree_k[:self.k]
-
+                print("sorting finished", f"choices len: {len(choices)}", flush=True)
                 # for each choice, pick the neighbor with the highest degree that isn't in the seed set
                 for choice in choices:
+                    print("loop", flush=True)
                     neighbors = list(set(self.G.neighbors(choice)) - set(self.seeds))
 
                     if len(neighbors) > 0:

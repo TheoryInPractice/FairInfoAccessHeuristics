@@ -46,6 +46,10 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # suppress deprecated warning
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
+def run_google(algorithms):
+    G = networks.get_google()
+    print("running specified ex")
+    exp.run_specified_experiments(G.copy(), k=10, p=.85, iterations=1, algo_dict=algorithms)
 
 def run_algorithm_assessment(graph_names, p_vals, algo_dict, k):
     graphs = []
@@ -64,7 +68,7 @@ def run_algorithm_assessment(graph_names, p_vals, algo_dict, k):
         for p in p_vals:
             print("Running {} with p = {}".format(graph_name, p))
             exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, use_cache=use_cache, algo_dict=algo_dict, draw_fig=True)
-
+            #exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, use_cache=use_cache, algo_dict=algo_dict)
 
 def run_bruteforce(graph_names, p_vals, k):
     for graph_name in graph_names:
@@ -107,7 +111,8 @@ def run_algorithm_timing(algo_dict, p_tag, index):
     # run algorithm timing
 
     # does cache file already exist?
-    if os.path.exists(f'./cache/timing_algos/{p_tag}/times_{p_tag}_{index}.npz'):
+    #if os.path.exists(f'./cache/timing_algos/{p_tag}/times_{p_tag}_{index}.npz'):
+    if False:
         # load the file
         with np.load(f'./cache/timing_algos/{p_tag}/times_{p_tag}_{index}.npz') as data:
             times = dict(data.items())
@@ -180,11 +185,12 @@ def run_probest_timing(algo_dict, indices, p_tag, iterations_probest):
     times['inline_m'] = []
 
     # does cache file already exist?
-    if os.path.exists(f'./cache/timing_probest/times_{p_tag}_{iterations_probest}.npz'):
+    #if os.path.exists(f'./cache/timing_probest/times_{p_tag}_{iterations_probest}.npz'):
+    if False:
         # load the file
-        with np.load(f'./cache/timing_probest/times_{p_tag}_{iterations_probest}.npz') as data:
-            times = dict(data.items())
-            print('Loaded times from cache.')
+       with np.load(f'./cache/timing_probest/times_{p_tag}_{iterations_probest}.npz') as data:
+           times = dict(data.items())
+           print('Loaded times from cache.')
     else:
         # read in network corpus
         df = pd.read_pickle('../datasets/corpus_augmented.pkl')
@@ -235,9 +241,9 @@ def run_probest_timing(algo_dict, indices, p_tag, iterations_probest):
                 end_time = time.time()
                 delta += end_time - start_time
 
-            delta = delta / iterations_exp
+            #delta = delta / iterations_exp
 
-            print(delta)
+            print("time in s:", delta, flush=True)
 
             times[network_hash] = delta
             times['inline_times'].append(delta)
@@ -246,7 +252,9 @@ def run_probest_timing(algo_dict, indices, p_tag, iterations_probest):
 
         #save the runtimes to a file
         np.savez(f'./cache/timing_probest/times_{p_tag}_{iterations_probest}.npz', **times)
-
+    print("seeds: ", len(initial_seeds))
+    print("Monte Carlo iters: ", iterations_probest)
+    print("p_tag", p_tag)
     print(times)
 
 def run_features():

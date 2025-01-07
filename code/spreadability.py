@@ -20,6 +20,7 @@ def search(G, num_seeds):
     p_vals = list(np.arange(0.01, 1, 0.01))
 
     for p in p_vals:
+        print("p:", p, flush=True)
         num_activated = []
 
         for s in seeds:

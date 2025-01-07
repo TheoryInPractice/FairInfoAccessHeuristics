@@ -1402,7 +1402,7 @@ def run_fig_avg_deg_vs_best():
 
 def run_probest_timing():
     iterations_probest = 1000
-    p_tags = ['low','med','high']
+    p_tags = ['low','med']
     #p_tags = ['med']
 
     # plot

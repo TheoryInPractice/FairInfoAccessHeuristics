@@ -6,7 +6,7 @@ import ctypes
 
 def estimate(G, p, seeds, ic_trials, threads=0):
     # prepare cpp arguments
-
+    print("seeds", seeds)
     # Convert the graph to an adjacency matrix (1D array)
     A = nx.to_numpy_array(G, dtype=np.int32).flatten()
     n = G.number_of_nodes()
@@ -14,7 +14,7 @@ def estimate(G, p, seeds, ic_trials, threads=0):
     prob_est_cpp = ctypes.CDLL('./cpp/prob_est')
 
     result = np.zeros(n, dtype=np.float32) # for storing the results of the cpp program
-
+    
     # prepare array pointers
     A_ptr = A.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
     ss_ptr = np.array(seeds, dtype=np.int32).ctypes.data_as(ctypes.POINTER(ctypes.c_int))

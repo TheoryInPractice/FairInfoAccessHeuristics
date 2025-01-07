@@ -32,6 +32,12 @@ algo_dict = {
 
 # python main.py corpus 0 0.5 5 random,myopic,naive_myopic,gonzales,furthest_non_seed_0,furthest_non_seed_1,bfs_myopic,naive_bfs_myopic,ppr_myopic,naive_ppr_myopic,degree_lowest_centrality_0,degree_lowest_centrality_1,degree_highest_degree_neighbor_0,degree_highest_degree_neighbor_1
 
+if command == "google":
+    #args: algo names
+    for algo in args[0].split(","):
+        algo_dict[algo] = True
+    runners.run_google(algo_dict)
+
 if command == "algo_assessment":
     # run algorithm assessment
     # args: graph_names, p_vals, k

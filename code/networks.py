@@ -341,3 +341,28 @@ def get_corpus_graph(index, get_domain=False):
         return G, df.iloc[index]['networkDomain']
     else:
         return G
+
+def get_google():
+    df = pd.read_csv("../datasets/google+.csv", header=None, dtype="int")
+    lst = df.values.tolist()
+    G = nx.DiGraph(name="Google+")
+    G.add_edges_from(lst)
+
+     # Get the strongly connected components
+    scc = list(nx.strongly_connected_components(G))
+
+    # Find the largest component
+    largest_scc = max(scc, key=len)
+
+    # Create a subgraph with the largest SCC
+    G = G.subgraph(largest_scc)
+
+    # convert to undirected graph
+    G = G.to_undirected()
+
+    # Remove self-loops
+    G.remove_edges_from(nx.selfloop_edges(G))
+
+    G = reset_index(G)
+    return G
+

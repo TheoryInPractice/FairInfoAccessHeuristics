@@ -74,16 +74,16 @@ extern "C"
         bool **adj = new bool *[n_];
 
         // convert flat adj1d to adj
-        for (int i = 0; i < n_; i++)
+        for (long long i = 0; i < n_; i++)
         {
             adj[i] = new bool[n_];
-            for (int j = 0; j < n_; j++)
+            for (int j = 0; j < n_; j++){ 
                 adj[i][j] = adj1d_[i * n_ + j];
+	    }
         }
-
 #pragma omp parallel for num_threads(threads)
         for (int i = 0; i < iters_; i++)
-        {
+	{
             // make a local random number generator and seed it
             RandomGenerator gen;
             gen.seed(i);

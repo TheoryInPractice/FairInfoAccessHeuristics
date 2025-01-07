@@ -9,7 +9,7 @@ class Experiment:
     Runs an experiment on a given graph G, with a given algorithm, for given parameters
     '''
 
-    def __init__(self, G, initial_seeds = [], k=100, p=0.5, ic_trials=1000, iterations=20, use_cache=False, algorithm=None, name=None, perform_eval=True, threads=0):
+    def __init__(self, G, initial_seeds = [], k=100, p=0.5, ic_trials=1000, iterations=20, use_cache=False, algorithm=None, name=None, perform_eval=False, threads=0):
         self.G = G
         self.initial_seeds = initial_seeds
         self.p = p
@@ -55,7 +55,7 @@ class Experiment:
 
         self.delta_time = self.end_time - self.start_time - self.precompute_total_time
 
-        print(f"[{self.name}] Time taken: {self.delta_time} seconds")
+        print(f"[{self.name}] Time taken: {self.delta_time} seconds. Algorithm Precompute Time: {algo.precompute_time}")
         
         return evaluations
     
@@ -77,14 +77,13 @@ def run_specified_experiments(G, k, p, iterations, use_cache=False, algo_dict=No
     # iterate over algorithms set to True
     for key, val in algo_dict.items():
         if val:
-            print(f'Running {key}')
+            print(f'Running {key}', flush=True)
 
             # initialize specified experimental environments and evaluate
             experiment = Experiment(G=G, k=k, initial_seeds=initial_seeds, p=p, iterations=iterations, use_cache=use_cache, algorithm=alg.get_algorithm(key), name=key)
-            evaluations[key] = experiment.run()
-
+            evaluations[key] = [i for lst in experiment.run() for i in lst] #flatten eval list and put in dict
             if draw_fig:
-                plt.plot(range(1, k+1), evaluations[key], label=key)
+                plt.plot(range(1, len(evaluations[key])+1), evaluations[key], label=key)
 
     if draw_fig:
         plt.legend()
@@ -133,5 +132,5 @@ def run_timing_experiment(G, algo_dict, p, p_tag, iterations=10, k=1):
 
             times[key].append(avg_time)
 
-            # print(f'Average time taken for {key}: {avg_time}')
+            print(f'Average time taken for {key}: {avg_time}')
     return times
