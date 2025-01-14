@@ -1,4 +1,5 @@
 import networkx as nx
+import networkit as nk
 import numpy as np
 import probability as prob
 from multiprocessing import Pool
@@ -346,9 +347,9 @@ class Gonzalez(Algorithm):
             # compute all pairs shortest paths
 
             time_start = time.time()
-            print("Before apsp", flush=True)
-            apsp = dict(nx.all_pairs_shortest_path_length(self.G))
-            print("After apsp", flush=True)
+            nk_G = nk.nxadapter.nx2nk(self.G)
+            apsp = nk.distance.APSP(nk_G)
+            apsp.run()
             self.precompute_time += time.time() - time_start
             
             for _ in range(self.k):
@@ -362,7 +363,7 @@ class Gonzalez(Algorithm):
                 # compute average distances from each node to the seed set
                 for i, c in enumerate(candidates):
                     for s in self.seeds:
-                        distances[i] += apsp[c][s]
+                        distances[i] += apsp.getDistance(c, s)
                     distances[i] /= len(self.seeds)
 
                 # get the index of the node with the maximum average distance
@@ -396,7 +397,13 @@ class FurthestNonSeed(Algorithm):
 
             time_start = time.time()
             # compute closeness centrality for all nodes
-            closeness = nx.closeness_centrality(self.G)
+            nk_G = nk.nxadapter.nx2nk(self.G)
+            closeness_alg = nk.centrality.Closeness(nk_G, True, nk.centrality.ClosenessVariant.STANDARD)
+            closeness_alg.run()
+            # compute closeness centrality for all nodes
+            closeness = closeness_alg.scores()
+            #convert to list to dict with indices as keys
+            closeness = {index:closeness[index] for index in range(len(closeness))}
             self.precompute_time += time.time() - time_start
 
             for _ in range(self.k):
@@ -430,8 +437,13 @@ class FurthestNonSeedChooseNeighbor(Algorithm):
         if self.k > 0: # if we need to predict more seeds
 
             time_start = time.time()
+            nk_G = nk.nxadapter.nx2nk(self.G)
+            closeness_alg = nk.centrality.Closeness(nk_G, True, nk.centrality.ClosenessVariant.STANDARD)
+            closeness_alg.run()
             # compute closeness centrality for all nodes
-            closeness = nx.closeness_centrality(self.G)
+            closeness = closeness_alg.scores()
+            #convert to list to dict with indices as keys
+            closeness = {index:closeness[index] for index in range(len(closeness))}
             self.precompute_time += time.time() - time_start
 
             for _ in range(self.k):
@@ -854,7 +866,12 @@ class DegreeLowestCentrality(Algorithm):
             max_degree = np.max(np.array(self.G.degree())[:, 1])
 
             time_start = time.time()
-            centrality = nx.harmonic_centrality(self.G) # old approach
+            nk_G = nk.nxadapter.nx2nk(self.G)
+            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False) #False to match networkx harmonic centrality
+            centrality_alg.run()
+            centrality = centrality_alg.scores()
+            #convert to list to dict with indices as keys
+            centrality = {index:centrality[index] for index in range(len(centrality))}
             self.precompute_time += time.time() - time_start
 
             for k in range(1, max_degree+1):
@@ -907,21 +924,22 @@ class DegreeLowestCentralityChooseNeighbor(Algorithm):
             # ...
 
             # get highest degree in the graph
-            print("began algorithm", flush=True)
             max_degree = np.max(np.array(self.G.degree())[:, 1])
-            print("max degree computed", flush=True)
+
             time_start = time.time()
-            centrality = nx.harmonic_centrality(self.G)
-            print("centrality computed", flush=True)
+            nk_G = nk.nxadapter.nx2nk(self.G)
+            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False) #False to match networkx harmonic centrality
+            centrality_alg.run()
+            centrality = centrality_alg.scores()
+            #convert to list to dict with indices as keys
+            centrality = {index:centrality[index] for index in range(len(centrality))}
             self.precompute_time += time.time() - time_start
 
             for k in range(1, max_degree+1):
                 # pick all nodes in the network with degree k
                 degree_k = [node for node in self.G.nodes() if self.G.degree(node) == k]
-                print("degree_k picked", flush=True)
                 # compute centrality for each node in degree_k
                 centrality_k = [centrality[node] for node in degree_k]
-                print("centrality_k computed", flush=True)
                 # make an np array with two columns: degree_k and closeness_k
                 temp = np.array([degree_k, centrality_k]).T
                 
@@ -933,10 +951,8 @@ class DegreeLowestCentralityChooseNeighbor(Algorithm):
                 degree_k = temp[:, 0].astype(int)
 
                 choices = degree_k[:self.k]
-                print("sorting finished", f"choices len: {len(choices)}", flush=True)
                 # for each choice, pick the neighbor with the highest degree that isn't in the seed set
                 for choice in choices:
-                    print("loop", flush=True)
                     neighbors = list(set(self.G.neighbors(choice)) - set(self.seeds))
 
                     if len(neighbors) > 0:
