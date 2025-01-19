@@ -33,10 +33,33 @@ algo_dict = {
 # python main.py corpus 0 0.5 5 random,myopic,naive_myopic,gonzales,furthest_non_seed_0,furthest_non_seed_1,bfs_myopic,naive_bfs_myopic,ppr_myopic,naive_ppr_myopic,degree_lowest_centrality_0,degree_lowest_centrality_1,degree_highest_degree_neighbor_0,degree_highest_degree_neighbor_1
 
 if command == "google":
-    #args: algo names
+    print(args)
+    #args: algo names p k iterations(for entire algorithm, not probest)
     for algo in args[0].split(","):
         algo_dict[algo] = True
-    runners.run_google(algo_dict)
+    p = float(args[1])
+    k=int(args[2])
+    iterations = int(args[3])
+    runners.run_google(algo_dict, p, k, iterations)
+
+if command == "email_network":
+    #args: algo names p k iterations(for entire algorithm, not probest)
+    for algo in args[0].split(","):
+        algo_dict[algo] = True
+    p = float(args[1])
+    k=int(args[2])
+    iterations = int(args[3])
+    runners.run_emailnetwork(algo_dict, p, k, iterations)
+
+if command == "dblp2012":
+    #args: algo names p k iterations(for entire algorithm, not probest)
+    for algo in args[0].split(","):
+        algo_dict[algo] = True
+    p = float(args[1])
+    k=int(args[2])
+    iterations = int(args[3])
+    runners.run_dblp2012(algo_dict, p, k, iterations)
+    
 
 if command == "algo_assessment":
     # run algorithm assessment

@@ -6,7 +6,6 @@ import ctypes
 
 def estimate(G, p, seeds, ic_trials, threads=0):
     # prepare cpp arguments
-    print("seeds", seeds)
     # Convert the graph to an adjacency matrix (1D array)
     A = nx.to_numpy_array(G, dtype=np.int32).flatten()
     n = G.number_of_nodes()

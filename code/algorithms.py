@@ -62,6 +62,7 @@ class Algorithm:
         self.use_cache = use_cache
         self.threads = threads
         self.precompute_time = 0
+        self.eval_time = 0
 
         # initialize the seeds if needed
         if seeds == None:
@@ -148,6 +149,8 @@ class Algorithm:
 
         seeds = self.predict()
 
+        start = time.time()
+
         subsets = []
 
         # create subsets of seeds to evaluate
@@ -156,14 +159,9 @@ class Algorithm:
             subsets.append(seeds[:i])
         for i in range(len(subsets)):
             result = prob.estimate(self.G, self.p, subsets[i], self.ic_trials)
-            if i == 0:
-                zeros = 0
-                for res in result:
-                    if res == 0:
-                        zeros=zeros+1
-                print(zeros, flush=True)
             self.evaluations.append(np.min(result))
-
+        
+        self.eval_time += (time.time() - start)
         # find and return the minimum probability
         return self.evaluations
 

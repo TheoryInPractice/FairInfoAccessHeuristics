@@ -366,3 +366,42 @@ def get_google():
     G = reset_index(G)
     return G
 
+def get_emailnetwork():
+    # read in the directed graph
+    G = nx.read_edgelist('../datasets/email-EuAll.txt',
+                         create_using=nx.DiGraph(), nodetype=int, delimiter="	")
+
+    # Get the strongly connected components
+    scc = list(nx.strongly_connected_components(G))
+
+    # Find the largest component
+    largest_scc = max(scc, key=len)
+
+    # Create a subgraph with the largest SCC
+    G = G.subgraph(largest_scc)
+
+    # convert to undirected graph
+    G = G.to_undirected()
+
+    # Remove self-loops
+    G.remove_edges_from(nx.selfloop_edges(G))
+
+    G.name="emailnetwork"
+
+    G = reset_index(G)
+
+    return G
+
+#This is a connected graph
+def get_dblp2012():
+    # read in the directed graph
+    G = nx.read_edgelist('../datasets/dblp2012.txt', nodetype=int, delimiter="\t")
+
+    # Remove self-loops
+    G.remove_edges_from(nx.selfloop_edges(G))
+
+    G.name="dblp2012"
+
+    G = reset_index(G)
+
+    return G
