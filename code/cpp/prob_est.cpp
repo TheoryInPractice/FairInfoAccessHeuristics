@@ -47,7 +47,6 @@ void ic(RandomGenerator *gen, bool **adj, int *ss, int *activated_, int n_, int 
     }
 
     // while queue isn't empty
-
     while (!q.empty())
     {
         // get the first element the pop

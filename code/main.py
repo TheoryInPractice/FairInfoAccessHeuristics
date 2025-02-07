@@ -34,22 +34,34 @@ algo_dict = {
 
 if command == "google":
     print(args)
-    #args: algo names p k iterations(for entire algorithm, not probest)
+    #args: algo_names p k iterations(for entire algorithm, not probest) inital_seeds
     for algo in args[0].split(","):
         algo_dict[algo] = True
     p = float(args[1])
     k=int(args[2])
     iterations = int(args[3])
-    runners.run_google(algo_dict, p, k, iterations)
+    if len(args) >= 5:
+        initial_seeds = args[4].split(",")
+        for i in range(len(initial_seeds)):
+            initial_seeds[i] = int(initial_seeds[i])
+    else:
+        initial_seeds = None
+    runners.run_google(algo_dict, p, k, iterations, init_seeds=initial_seeds)
 
 if command == "email_network":
-    #args: algo names p k iterations(for entire algorithm, not probest)
+    #args: algo_names p k iterations(for entire algorithm, not probest) initial_seeds
     for algo in args[0].split(","):
         algo_dict[algo] = True
     p = float(args[1])
     k=int(args[2])
     iterations = int(args[3])
-    runners.run_emailnetwork(algo_dict, p, k, iterations)
+    if len(args) >= 5:
+        initial_seeds = args[4].split(",")
+        for i in range(len(initial_seeds)):
+            initial_seeds[i] = int(initial_seeds[i])
+    else:
+        initial_seeds = None
+    runners.run_emailnetwork(algo_dict, p, k, iterations, init_seeds=initial_seeds)
 
 if command == "dblp2012":
     #args: algo names p k iterations(for entire algorithm, not probest)

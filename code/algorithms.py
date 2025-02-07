@@ -342,7 +342,7 @@ class Gonzalez(Algorithm):
 
     def predict(self):
         if self.k > 0: # if we need to predict more seeds
-            # compute all pairs shortest paths
+            # compute all pairs shortest paths using networkit
 
             time_start = time.time()
             nk_G = nk.nxadapter.nx2nk(self.G)
@@ -394,13 +394,13 @@ class FurthestNonSeed(Algorithm):
         if self.k > 0: # if we need to predict more seeds
 
             time_start = time.time()
-            # compute closeness centrality for all nodes
+            # convert to networkit graph
             nk_G = nk.nxadapter.nx2nk(self.G)
+            #compute closeness centrality with parameters which match closeness in networkx
             closeness_alg = nk.centrality.Closeness(nk_G, True, nk.centrality.ClosenessVariant.STANDARD)
             closeness_alg.run()
-            # compute closeness centrality for all nodes
             closeness = closeness_alg.scores()
-            #convert to list to dict with indices as keys
+            #convert list to dict with indices as keys
             closeness = {index:closeness[index] for index in range(len(closeness))}
             self.precompute_time += time.time() - time_start
 
@@ -435,10 +435,11 @@ class FurthestNonSeedChooseNeighbor(Algorithm):
         if self.k > 0: # if we need to predict more seeds
 
             time_start = time.time()
+            #convert to networkit graph
             nk_G = nk.nxadapter.nx2nk(self.G)
+            #compute closeness centrality with parameters which match closeness in networkx
             closeness_alg = nk.centrality.Closeness(nk_G, True, nk.centrality.ClosenessVariant.STANDARD)
             closeness_alg.run()
-            # compute closeness centrality for all nodes
             closeness = closeness_alg.scores()
             #convert to list to dict with indices as keys
             closeness = {index:closeness[index] for index in range(len(closeness))}
@@ -864,8 +865,10 @@ class DegreeLowestCentrality(Algorithm):
             max_degree = np.max(np.array(self.G.degree())[:, 1])
 
             time_start = time.time()
+            #convert to networkit graph
             nk_G = nk.nxadapter.nx2nk(self.G)
-            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False) #False to match networkx harmonic centrality
+            #compute harmonic centrality with parameters to match networkx harmonic centrality
+            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False)
             centrality_alg.run()
             centrality = centrality_alg.scores()
             #convert to list to dict with indices as keys
@@ -925,8 +928,10 @@ class DegreeLowestCentralityChooseNeighbor(Algorithm):
             max_degree = np.max(np.array(self.G.degree())[:, 1])
 
             time_start = time.time()
+            #convert to networkit graph
             nk_G = nk.nxadapter.nx2nk(self.G)
-            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False) #False to match networkx harmonic centrality
+            #compute harmonic centrality with parameters to match networkx harmonic centrality
+            centrality_alg = nk.centrality.HarmonicCloseness(nk_G, normalized=False)
             centrality_alg.run()
             centrality = centrality_alg.scores()
             #convert to list to dict with indices as keys

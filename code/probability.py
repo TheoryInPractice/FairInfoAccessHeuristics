@@ -3,10 +3,12 @@ from multiprocessing import Pool
 import numpy as np
 import networkx as nx
 import ctypes
+import time
 
 def estimate(G, p, seeds, ic_trials, threads=0):
     # prepare cpp arguments
     # Convert the graph to an adjacency matrix (1D array)
+    start_time = time.time()
     A = nx.to_numpy_array(G, dtype=np.int32).flatten()
     n = G.number_of_nodes()
 

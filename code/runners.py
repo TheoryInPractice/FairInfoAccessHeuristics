@@ -46,13 +46,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # suppress deprecated warning
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
-def run_google(algorithms, p, k, iterations):
+def run_google(algorithms, p, k, iterations, init_seeds=None):
     G = networks.get_google()
-    exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, algo_dict=algorithms)
+    exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, algo_dict=algorithms, init_seeds=init_seeds)
 
-def run_emailnetwork(algorithms, p, k, iterations):
+def run_emailnetwork(algorithms, p, k, iterations, init_seeds=None):
     G = networks.get_emailnetwork()
-    exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, algo_dict=algorithms)
+    exp.run_specified_experiments(G.copy(), k=k, p=p, iterations=iterations, algo_dict=algorithms, init_seeds=init_seeds)
 
 def run_dblp2012(algorithms, p, k, iterations):
     G = networks.get_dblp2012()

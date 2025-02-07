@@ -386,7 +386,7 @@ def get_emailnetwork():
     # Remove self-loops
     G.remove_edges_from(nx.selfloop_edges(G))
 
-    G.name="emailnetwork"
+    G.name="email"
 
     G = reset_index(G)
 
@@ -394,7 +394,7 @@ def get_emailnetwork():
 
 #This is a connected graph
 def get_dblp2012():
-    # read in the directed graph
+    # read in the graph
     G = nx.read_edgelist('../datasets/dblp2012.txt', nodetype=int, delimiter="\t")
 
     # Remove self-loops

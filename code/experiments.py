@@ -11,7 +11,7 @@ class Experiment:
     Runs an experiment on a given graph G, with a given algorithm, for given parameters
     '''
 
-    def __init__(self, G, initial_seeds = [], k=100, p=0.5, ic_trials=1000, iterations=20, use_cache=False, algorithm=None, name=None, perform_eval=True, threads=0):
+    def __init__(self, G, initial_seeds = [], k=100, p=0.5, ic_trials=10000, iterations=20, use_cache=False, algorithm=None, name=None, perform_eval=True, threads=0):
         self.G = G
         self.initial_seeds = initial_seeds
         self.p = p
@@ -24,9 +24,12 @@ class Experiment:
         self.name = name
         self.use_cache = use_cache
         self.perform_eval = perform_eval
+        #algorithm time summed over all iterations
         self.delta_time = None
         self.threads = threads
+        #summed over all iterations
         self.precompute_total_time = 0
+        #summed over all iterations
         self.eval_time = 0
 
     def run(self):
@@ -63,7 +66,7 @@ class Experiment:
         
         return evaluations
     
-def run_specified_experiments(G, k, p, iterations, use_cache=False, algo_dict=None, draw_fig=False, save_evals=True, p_tag=None, save_timing=True):
+def run_specified_experiments(G, k, p, iterations, init_seeds=None, use_cache=False, algo_dict=None, draw_fig=False, save_evals=True, p_tag=None, save_timing=True):
     evaluations = {}
     times = {}
 
@@ -75,7 +78,10 @@ def run_specified_experiments(G, k, p, iterations, use_cache=False, algo_dict=No
         plt.clf()
 
     # roll a random seed from G for each iteration
-    initial_seeds = np.random.choice(G.nodes, size=iterations, replace=False)
+    if init_seeds==None:
+        initial_seeds = np.random.choice(G.nodes, size=iterations, replace=False)
+    else:
+        initial_seeds = init_seeds
 
     print(f'Running experiments on {G.name} with p = {p}, k = {k} for {iterations} iterations. Initial seeds: {initial_seeds}')
 
@@ -86,6 +92,7 @@ def run_specified_experiments(G, k, p, iterations, use_cache=False, algo_dict=No
 
             # initialize specified experimental environments and evaluate
             experiment = Experiment(G=G, k=k, initial_seeds=initial_seeds, p=p, iterations=iterations, use_cache=use_cache, algorithm=alg.get_algorithm(key), name=key)
+            print(f"IC trials: {experiment.ic_trials}", flush=True) 
             evaluations[key] = [i for lst in experiment.run() for i in lst] #flatten eval list and put in dict
             times[key] = (experiment.delta_time, experiment.precompute_total_time)
             if draw_fig:
@@ -108,32 +115,26 @@ def run_specified_experiments(G, k, p, iterations, use_cache=False, algo_dict=No
 
     if save_evals:
         # save evaluations
-        path = f'./cache/evaluations/{G.name}_{p_tag}_{round(p, 3)}_k{k}_eval.pkl'
-        #if the file already exists, add to the values already there
-        if os.path.isfile(path):
-            with open(path, "rb") as read_file:
-                evals = pickle.load(read_file)
-                for key, value in evals.items():
-                    if key in evaluations:
-                        eval_list = [evals[key][i] + evaluations[key][i] for i in range(len(evals[key]))]
-                        evaluations[key] = eval_list
-                    else:
-                        raise Exception("Eval dictionaries don't match up")
-        with open(path, "wb") as write_file:
-            pickle.dump(evaluations, write_file)
+        np.save(f'./cache/evaluations/{G.name}_{p_tag}_{round(p, 3)}.npy', evaluations)
+        path = f'./cache/evaluations/{G.name}_{round(p, 3)}_IC{experiment.ic_trials}_eval.txt'
+        with open(path, "a") as eval_file:
+            for algo, evals in evaluations.items():
+                eval_file.write(f"{algo}\n")
+                for min_broad in evals:
+                    eval_file.write(f"{(round(float(min_broad), 3))} ")
+                eval_file.write("\n")
+
     if save_timing:
-        path=f'./cache/timing_algos/{G.name}_{p_tag}_{round(p, 3)}_k{k}_times.pkl'
-        if os.path.isfile(path):
-            with open(path, "rb") as read_file:
-                old_times = pickle.load(read_file)
-                for key, value in old_times.items():
-                    if key in times:
-                        new_times_tuple = (old_times[key][0] + times[key][0], old_times[key][1]+times[key][1])
-                        times[key] = new_times_tuple
-                    else:
-                        raise Exception("Time dictionaries don't match")
-        with open(path, "wb") as write_file:
-            pickle.dump(times, write_file)
+        #save times to file. Note that they are formatted (algo_time, precompute_time)
+        #Note that the times are saved as the sum over all iterations
+        path=f'./cache/timing_algos/{G.name}_{round(p, 3)}_IC{experiment.ic_trials}_times.txt'
+        with open(path, "a") as time_file:
+            for algo, time in times.items():
+                time_file.write(f"{algo}\n")
+                for num in time:
+                    time_file.write(f"{(round(num, 3))} ")
+                time_file.write("\n")
+            
 
     return evaluations
 
