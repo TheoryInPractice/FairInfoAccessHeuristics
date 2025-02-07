@@ -6,6 +6,7 @@ We consider the problem of selecting 𝑘 seed nodes in a social network to maxi
 The most recent network corpus of smaller datasets used in the study is `./datasets/corpus_augmented.pkl`. This file is a `pandas` dataframe, network citations are provided in the file itself.
 
 The recent larger datasets used are `./datasets/email-EuAll.txt` and `./datasets/google+.csv`.
+
 Google+ (2013) Citation:
 M. Fire et al. "Computationally efficient link prediction in a variety of social networks." ACM Transactions on Intelligent Systems and Technology 5(1), Article 10 (2013)
 
@@ -50,7 +51,7 @@ The output files are stored in `./cache/evaluations/` as both `.npz` and `.txt` 
 
 To produce algorithm runtimes for a network in the corpus of smaller datasets, run `python main.py timing [spreadability] [index]`, where index is an integer in [0, 174]. The implementation currently relies on presence of corresponding performance evaluation files in `./cache/evaluations/`, outlined in the previous paragraph. The output files are stored in `./cache/timing_algos/`. All-Pairs-Shortest-Paths (APSP), required for Gonzales; LeastCentral; LeastCentral_n; MinDegree_hc; and MinDegree_hcn, were calculated separately. See "Networkit and All-Pairs-Shortest-Paths" paragraph.
 
-To produce algorithm runtimes for the larger networks, run `python main.py [network_command] [algo_names] [spreadability] [k (number of seeds)]`. The timing data will be saved in `./cache/timing_algos/`. The data is formatted in pairs of numbers, where the first number is the algorithm time (without APSP or evaluation), and the second number is the APSP time (see next paragraph). 
+To produce algorithm runtimes for the larger networks, run `python main.py [network_command] [algo_names] [spreadability] [k (number of seeds)]`. The timing data will be saved in `./cache/timing_algos/`. The data is formatted in pairs of numbers, where the first number is the algorithm time (without APSP or evaluation), and the second number is the APSP time (see next paragraph).
 
 ### Networkit and All-Pairs-Shortest-Paths
 
